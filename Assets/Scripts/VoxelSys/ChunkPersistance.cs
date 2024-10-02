@@ -83,7 +83,7 @@ public partial class Chunk : MonoBehaviour
 
         public ChunkData(Chunk chunk)
         {
-            voxelData = Array.ConvertAll(chunk.voxels, new Converter<Voxel, byte>(SaveUtil.VoxelToByte));
+            voxelData = Array.ConvertAll(chunk.voxels, SaveUtil.VoxelToByte);
             worldItemData = new WorldObjectData[chunk.worldItems.Count];
             int i = 0;
             foreach (WorldObject wi in chunk.worldItems)

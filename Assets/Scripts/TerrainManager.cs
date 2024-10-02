@@ -21,15 +21,13 @@ public partial class TerrainManager : Singleton<TerrainManager>
         public Vector3Int chunkPosition;
     } 
     
-    Dictionary<Vector3Int, Chunk> chunks = new Dictionary<Vector3Int, Chunk>();
-    Vector3Int currentTargetChunkPosition = new Vector3Int(int.MinValue, int.MaxValue, int.MinValue);
-    //Queue<ChunkNode> generateChunkQueue = new Queue<ChunkNode>();
-    FastPriorityQueue<ChunkNode> generateChunkQueue = new FastPriorityQueue<ChunkNode>(100000);
+    Dictionary<Vector3Int, Chunk> chunks = new();
+    Vector3Int currentTargetChunkPosition = new(int.MinValue, int.MaxValue, int.MinValue);
+    FastPriorityQueue<ChunkNode> generateChunkQueue = new(100000);
     int updatingChunks;
 
     public Vector3Int ChunkSize => chunkSize;
     public Material ChunkMaterial => chunkMaterial;
-    public ChunkMeshBuilder.SimplifyingMethod SimplifyingMethod => simplifyingMethod;
 
     public int UpdatingChunks
     {
@@ -39,15 +37,14 @@ public partial class TerrainManager : Singleton<TerrainManager>
 
     public bool CanUpdate => updatingChunks <= maxGenerateChunksInFrame;
 
-    void Awake()
+    private void Awake()
     {
         ChunkMeshBuilder.InitializeShaderParameter();
     }
 
-    void Update()
+    private void Update()
     {
-        if (target == null)
-            return;
+        if (!target) return;
 
         Vector3Int targetChunkPosition = VoxelUtil.WorldToChunk(target.position, chunkSize);
 
@@ -61,13 +58,13 @@ public partial class TerrainManager : Singleton<TerrainManager>
         SaveFarawayChunks(targetChunkPosition);
     }
 
-    void LateUpdate()
+    private void LateUpdate()
     {
         ProcessGenerateChunkQueue();
         ProcessSaveChunkQueue();
     }
 
-    void GenerateNearbyChunks(Vector3Int targetChunkPosition)
+    private void GenerateNearbyChunks(Vector3Int targetChunkPosition)
     {
         
         // If there are still chunks to generate, check if they are worth keeping.
@@ -134,11 +131,11 @@ public partial class TerrainManager : Singleton<TerrainManager>
         }
     }
 
-    Chunk GenerateChunk(Vector3Int chunkPosition)
+    private Chunk GenerateChunk(Vector3Int chunkPosition)
     {
         // Creates and initializes chunk, if it doesn't exists already
-        if (chunks.ContainsKey(chunkPosition))
-            return chunks[chunkPosition];
+        if (chunks.TryGetValue(chunkPosition, out var chunk))
+            return chunk;
 
         GameObject chunkGameObject = new GameObject(chunkPosition.ToString());
         chunkGameObject.transform.SetParent(transform);

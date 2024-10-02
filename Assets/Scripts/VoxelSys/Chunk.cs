@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -87,15 +86,9 @@ public partial class Chunk : MonoBehaviour
 
     void Update()
     {
-        if (!Initialized)
+        if (!Initialized || Updating || !Dirty)
             return;
-
-        if (Updating)
-            return;
-
-        if (!Dirty)
-            return;
-
+        
         if (CanUpdate == null || !CanUpdate())
             return;
 
@@ -111,11 +104,6 @@ public partial class Chunk : MonoBehaviour
             yield break;
 
         generator.UpdatingChunks++;
-
-        int3 chunkSizeInt3 = VoxelUtil.ToInt3(chunkSize);
-
-        // Was used for lighting job, no longer necessary 
-        //List<Voxel[]> neighborVoxels = generator.GetNeighborVoxels(chunkPosition, 1);
 
         meshData?.Dispose();
         meshData = new ChunkMeshBuilder.NativeMeshData(VoxelUtil.ToInt3(chunkSize));
